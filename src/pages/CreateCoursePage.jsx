@@ -406,7 +406,7 @@ export default function CreateCoursePage() {
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>{language === 'ar' ? 'السعر الأساسي' : language === 'fr' ? 'Prix de base' : 'Base price'}</span>
-                  <span>{vat.basePriceMAD.toLocaleString()} MAD</span>
+                  <span>{vat.basePrice.toLocaleString()} MAD</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>{language === 'ar' ? 'ضريبة القيمة المضافة (20%)' : language === 'fr' ? 'TVA (20%)' : 'VAT (20%)'}</span>
