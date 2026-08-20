@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'coachhq_courses';
+const DELETED_KEY = 'coachhq_deleted_demos';
 
 const MOCK_COURSES = [
   {
@@ -45,23 +46,37 @@ const MOCK_COURSES = [
   },
 ];
 
-function loadAll() {
+function getDeletedDemoIds() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [...MOCK_COURSES];
-    const saved = JSON.parse(raw);
-    const demoIds = MOCK_COURSES.map((c) => c.id);
-    const userCourses = saved.filter((c) => !demoIds.includes(c.id));
-    return [...MOCK_COURSES, ...userCourses];
+    return JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
   } catch {
-    return [...MOCK_COURSES];
+    return [];
   }
 }
 
-function saveUserCourses(courses) {
-  const demoIds = MOCK_COURSES.map((c) => c.id);
-  const userOnly = courses.filter((c) => !demoIds.includes(c.id));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(userOnly));
+function markDemoDeleted(id) {
+  const deleted = getDeletedDemoIds();
+  if (!deleted.includes(id)) {
+    deleted.push(id);
+    localStorage.setItem(DELETED_KEY, JSON.stringify(deleted));
+  }
+}
+
+function loadAll() {
+  try {
+    const deletedIds = getDeletedDemoIds();
+    const visibleDemos = MOCK_COURSES.filter((c) => !deletedIds.includes(c.id));
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return visibleDemos;
+    const saved = JSON.parse(raw);
+    return [...visibleDemos, ...saved];
+  } catch {
+    return MOCK_COURSES.filter((c) => !getDeletedDemoIds().includes(c.id));
+  }
+}
+
+function saveCourses(courses) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
 }
 
 export function getCourses() {
@@ -89,7 +104,7 @@ export function createCourse(data) {
     videoStatus: data.videoUrl ? 'available' : 'none',
   };
   courses.push(course);
-  saveUserCourses(courses);
+  saveCourses(courses);
   return course;
 }
 
@@ -110,13 +125,16 @@ export function updateCourse(id, updates) {
       totalWithVat: price + vat,
     };
   }
-  saveUserCourses(courses);
+  saveCourses(courses);
   return courses[idx];
 }
 
 export function deleteCourse(id) {
-  const courses = loadAll();
-  const filtered = courses.filter((c) => c.id !== id);
-  saveUserCourses(filtered);
-  return filtered;
+  if (id.startsWith('demo-')) {
+    markDemoDeleted(id);
+  } else {
+    const courses = loadAll().filter((c) => c.id !== id);
+    saveCourses(courses);
+  }
+  return loadAll();
 }
