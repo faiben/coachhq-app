@@ -7,6 +7,7 @@ import {
   uploadVideo,
   formatFileSize,
 } from '../services/videoService';
+import { createCourse } from '../services/courseService';
 
 const STEPS = ['details', 'video', 'pricing', 'publish'];
 const CATEGORIES = [
@@ -112,7 +113,7 @@ export default function CreateCoursePage() {
   const handlePublish = async () => {
     setSubmitting(true);
     try {
-      const courseData = {
+      createCourse({
         title: form.titleFr || form.titleEn || 'Untitled',
         titles: { ar: form.titleAr, fr: form.titleFr, en: form.titleEn },
         descriptions: { ar: form.descriptionAr, fr: form.descriptionFr, en: form.descriptionEn },
@@ -120,17 +121,13 @@ export default function CreateCoursePage() {
         videoUrl: form.videoUrl,
         pricing: {
           type: form.pricingType,
-          basePriceMAD: form.basePriceMAD,
-          vat: vat.vat,
-          totalWithVat: vat.totalWithVat,
-          subscriptionPriceMAD: form.subscriptionPriceMAD,
+          basePriceMAD: basePriceNum,
+          subscriptionPriceMAD: subPriceNum,
           subscriptionInterval: form.subscriptionInterval,
         },
         privacy: form.privacy,
         status: 'published',
-      };
-
-      console.log('Publishing course:', courseData);
+      });
       setPublished(true);
     } catch (error) {
       console.error('Publish failed:', error);
