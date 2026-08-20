@@ -1,0 +1,162 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isCoach() {
+      return isAuthenticated() && request.auth.uid == resource.data.coachId;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email.matches('.*@.*\\..*');
+    }
+
+    function isValidPhone(phone) {
+      return phone.matches('^\\+212[\\s]?\\d{3}[\\s-]?\\d{6}$');
+    }
+
+    // ============================================================
+    // COACHES COLLECTION
+    // ============================================================
+    match /coaches/{coachId} {
+      // Coaches can read their own profile
+      allow read: if isOwner(coachId);
+
+      // Coaches can create their own profile during registration
+      allow create: if isOwner(coachId)
+        && request.resource.data.keys().hasAll(['email', 'displayName', 'language', 'verificationStatus', 'createdAt'])
+        && request.resource.data.verificationStatus == 'pending'
+        && isValidEmail(request.resource.data.email);
+
+      // Coaches can update their own profile (but not verificationStatus or paymentToken directly)
+      allow update: if isOwner(coachId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['verificationStatus', 'paymentToken']);
+
+      // No delete allowed - data retained for compliance
+      allow delete: if false;
+
+      // ============================================================
+      // CLIENTS SUBCOLLECTION (under each coach)
+      // ============================================================
+      match /clients/{clientId} {
+        // Coach can read their own clients
+        allow read: if isCoach();
+
+        // Coach can create clients
+        allow create: if isCoach()
+          && request.resource.data.coachId == coachId
+          && request.resource.data.keys().hasAll(['clientId', 'coachId', 'createdAt']);
+
+        // Coach can update their clients
+        allow update: if isCoach()
+          && resource.data.coachId == coachId;
+
+        // Coach can delete clients (soft delete recommended)
+        allow delete: if isCoach()
+          && resource.data.coachId == coachId;
+      }
+
+      // ============================================================
+      // CONTENT SUBCOLLECTION (courses, videos)
+      // ============================================================
+      match /content/{contentId} {
+        // Coach can read their own content
+        allow read: if isCoach();
+
+        // Public read for published content (for client browsing)
+        allow read: if resource.data.status == 'published';
+
+        // Coach can create content
+        allow create: if isCoach()
+          && request.resource.data.coachId == coachId;
+
+        // Coach can update their own content
+        allow update: if isCoach()
+          && resource.data.coachId == coachId;
+
+        // Coach can delete their own content
+        allow delete: if isCoach()
+          && resource.data.coachId == coachId;
+      }
+
+      // ============================================================
+      // SESSIONS SUBCOLLECTION
+      // ============================================================
+      match /sessions/{sessionId} {
+        // Coach can read their own sessions
+        allow read: if isCoach();
+
+        // Coach can create sessions
+        allow create: if isCoach()
+          && request.resource.data.coachId == coachId;
+
+        // Coach can update sessions
+        allow update: if isCoach()
+          && resource.data.coachId == coachId;
+
+        // Coach can delete (cancel) sessions
+        allow delete: if isCoach()
+          && resource.data.coachId == coachId;
+      }
+
+      // ============================================================
+      // PAYMENTS SUBCOLLECTION
+      // ============================================================
+      match /payments/{paymentId} {
+        // Coach can read their own payments
+        allow read: if isCoach();
+
+        // Payments are created by Cloud Functions only
+        allow create: if false;
+
+        // No direct updates - handled by Cloud Functions
+        allow update: if false;
+
+        // No deletes - financial records retained
+        allow delete: if false;
+      }
+    }
+
+    // ============================================================
+    // VERIFICATIONS COLLECTION (admin-managed)
+    // ============================================================
+    match /verifications/{verificationId} {
+      // Coaches can read their own verification status
+      allow read: if isAuthenticated()
+        && request.auth.uid == resource.data.coachId;
+
+      // Coaches can submit verification request
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.coachId
+        && request.resource.data.status == 'pending';
+
+      // No direct updates - admin only via Cloud Functions
+      allow update: if false;
+
+      // No deletes
+      allow delete: if false;
+    }
+
+    // ============================================================
+    // TRANSACTIONS COLLECTION (read-only for coaches)
+    // ============================================================
+    match /transactions/{transactionId} {
+      // Coaches can read transactions they're involved in
+      allow read: if isAuthenticated()
+        && (request.auth.uid == resource.data.coachId);
+
+      // Created by Cloud Functions only
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
