@@ -268,9 +268,12 @@
   },
   "sessions": {
     "title": "الجلسات",
+    "tabs": {
+      "upcoming": "القادمة",
+      "past": "السابقة"
+    },
     "schedule": "جدولة جلسة",
-    "upcoming": "القادمة",
-    "past": "السابقة",
+    "scheduleButton": "جدولة جلسة",
     "duration": "المدة",
     "minutes": "دقيقة",
     "timezone": "المنطقة الزمنية",
@@ -291,7 +294,25 @@
     "scheduled": "مجدولة",
     "completed": "مكتملة",
     "cancelled": "ملغاة",
-    "noSessions": "لا توجد جلسات"
+    "noSessions": "لا توجد جلسات",
+    "weekView": "عرض الأسبوع",
+    "actions": {
+      "join": "انضم",
+      "reschedule": "إعادة جدولة",
+      "cancel": "إلغاء",
+      "cancelledNotice": "تم إلغاء هذه الجلسة",
+      "viewNotes": "عرض الملاحظات"
+    },
+    "sidebar": {
+      "overview": "نظرة عامة",
+      "nextIn": "الجلسة القادمة خلال",
+      "thisWeek": "هذا الأسبوع",
+      "completionRate": "معدل الإنجاز"
+    },
+    "ramadanMode": {
+      "label": "وضع رمضان",
+      "hint": "تعديل تلقائي لأوقات العمل خلال رمضان"
+    }
   },
   "clients": {
     "title": "العملاء",

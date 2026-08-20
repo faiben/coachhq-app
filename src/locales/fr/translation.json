@@ -268,9 +268,12 @@
   },
   "sessions": {
     "title": "Séances",
+    "tabs": {
+      "upcoming": "À venir",
+      "past": "Passées"
+    },
     "schedule": "Planifier une séance",
-    "upcoming": "À venir",
-    "past": "Passées",
+    "scheduleButton": "Planifier une séance",
     "duration": "Durée",
     "minutes": "min",
     "timezone": "Fuseau horaire",
@@ -291,7 +294,25 @@
     "scheduled": "Planifiée",
     "completed": "Terminée",
     "cancelled": "Annulée",
-    "noSessions": "Aucune séance trouvée"
+    "noSessions": "Aucune séance trouvée",
+    "weekView": "Vue semaine",
+    "actions": {
+      "join": "Rejoindre",
+      "reschedule": "Reprogrammer",
+      "cancel": "Annuler",
+      "cancelledNotice": "Cette séance a été annulée",
+      "viewNotes": "Voir les notes"
+    },
+    "sidebar": {
+      "overview": "Aperçu",
+      "nextIn": "Prochaine séance dans",
+      "thisWeek": "Cette semaine",
+      "completionRate": "Taux de complétion"
+    },
+    "ramadanMode": {
+      "label": "Mode Ramadan",
+      "hint": "Ajustement automatique des horaires pendant le Ramadan"
+    }
   },
   "clients": {
     "title": "Clients",

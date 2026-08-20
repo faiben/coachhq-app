@@ -268,9 +268,12 @@
   },
   "sessions": {
     "title": "Sessions",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
     "schedule": "Schedule Session",
-    "upcoming": "Upcoming",
-    "past": "Past",
+    "scheduleButton": "Schedule Session",
     "duration": "Duration",
     "minutes": "min",
     "timezone": "Timezone",
@@ -291,7 +294,25 @@
     "scheduled": "Scheduled",
     "completed": "Completed",
     "cancelled": "Cancelled",
-    "noSessions": "No sessions found"
+    "noSessions": "No sessions found",
+    "weekView": "Week View",
+    "actions": {
+      "join": "Join",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel",
+      "cancelledNotice": "This session was cancelled",
+      "viewNotes": "View Notes"
+    },
+    "sidebar": {
+      "overview": "Overview",
+      "nextIn": "Next session in",
+      "thisWeek": "This week",
+      "completionRate": "Completion rate"
+    },
+    "ramadanMode": {
+      "label": "Ramadan Mode",
+      "hint": "Auto-adjust working hours during Ramadan"
+    }
   },
   "clients": {
     "title": "Clients",
