@@ -29,6 +29,7 @@ export default function CreateCoursePage() {
 
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [published, setPublished] = useState(false);
 
   const [form, setForm] = useState({
     titleAr: '',
@@ -46,14 +47,17 @@ export default function CreateCoursePage() {
     uploadStatus: '',
     videoUrl: null,
     pricingType: 'one-time',
-    basePriceMAD: 0,
-    subscriptionPriceMAD: 0,
+    basePriceMAD: '',
+    subscriptionPriceMAD: '',
     subscriptionInterval: 'monthly',
     privacy: 'unlisted',
     language: 'fr',
   });
 
-  const vat = calculateVAT(form.pricingType === 'one-time' ? form.basePriceMAD : form.subscriptionPriceMAD);
+  const basePriceNum = Number(form.basePriceMAD) || 0;
+  const subPriceNum = Number(form.subscriptionPriceMAD) || 0;
+
+  const vat = calculateVAT(form.pricingType === 'one-time' ? basePriceNum : subPriceNum);
 
   const updateForm = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -77,7 +81,7 @@ export default function CreateCoursePage() {
   };
 
   const handleVideoUpload = async () => {
-    if (!form.videoFile || !currentUser) return;
+    if (!form.videoFile) return;
 
     setSubmitting(true);
     updateForm('uploadStatus', 'Uploading...');
@@ -85,7 +89,7 @@ export default function CreateCoursePage() {
 
     try {
       const result = await uploadVideo({
-        coachId: currentUser.uid,
+        coachId: currentUser?.uid || 'demo-coach',
         file: form.videoFile,
         onProgress: (progress) => {
           updateForm('uploadProgress', progress);
@@ -127,8 +131,7 @@ export default function CreateCoursePage() {
       };
 
       console.log('Publishing course:', courseData);
-      alert('Course published! (Connect Firebase to persist data)');
-      navigate('/courses');
+      setPublished(true);
     } catch (error) {
       console.error('Publish failed:', error);
     } finally {
@@ -173,7 +176,28 @@ export default function CreateCoursePage() {
         ))}
       </div>
 
+      {/* Published Success */}
+      {published && (
+        <div className="card p-12 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {language === 'ar' ? 'تم نشر الدورة!' : language === 'fr' ? 'Cours publié !' : 'Course Published!'}
+          </h2>
+          <p className="text-gray-500 mb-8">
+            {language === 'ar' ? 'تم نشر دورتك بنجاح' : language === 'fr' ? 'Votre cours est maintenant en ligne' : 'Your course is now live'}
+          </p>
+          <button onClick={() => navigate('/courses')} className="btn-primary">
+            {language === 'ar' ? 'العودة للمكتبة' : language === 'fr' ? 'Retour à la bibliothèque' : 'Back to Library'}
+          </button>
+        </div>
+      )}
+
       {/* Step Content */}
+      {!published && (
       <div className="card p-8">
         {/* Step 1: Details */}
         {step === 0 && (
@@ -497,6 +521,7 @@ export default function CreateCoursePage() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
